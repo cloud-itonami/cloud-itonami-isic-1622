@@ -1,0 +1,33 @@
+;; What this vertical's robot physically does, declared for
+;; kotoba.robotics.process (kotoba-lang/robotics). `kbb -M:dev:physics` runs it.
+;;
+;; README has no "Robotics premise" section. The millwork shop makes
+;; doors, window frames, staircases and structural wood components. Its
+;; physical work here: loading door blanks onto the CNC machining centre, and
+;; carrying finished doors upright on an A-frame cart to dispatch.
+;;
+;; Every number without a cited source is marked `estimate` in its :basis.
+;; Replacing an estimate with a sourced value is this bot's growth work.
+{:physics/schema "itonami.physical-ai.spec.v1"
+ :repo "cloud-itonami/cloud-itonami-isic-1622"
+ :cases
+ [{:id :door-blank-to-cnc
+   :kind :manipulator
+   :procedure "handling arm lifts a door blank from the infeed stack onto the CNC machining centre's pods"
+   :params {:l1-m 0.90 :l2-m 0.80 :m1-kg 20.0 :m2-kg 14.0
+            :from [1.00 0.10] :to [0.60 0.70] :duration-s 3.0 :steps 400}
+   :sweep {:param :payload-kg :values [15.0 20.0 25.0 30.0 40.0]}
+   :quantity :peak-tau1-nm
+   :limit {:max 700.0 :basis "estimate: continuous shoulder torque of a ~50 kg class industrial handling arm"}
+   :boundary {:lo 5.0 :hi 120.0}}
+  {:id :door-cart-to-dispatch
+   :kind :transport
+   :procedure "AMR tows an A-frame cart carrying finished doors standing upright from the finishing line to dispatch"
+   :params {:mass-kg 150.0 :payload-kg 300.0 :distance-m 60.0 :v-max-mps 1.0 :a-max-mps2 0.4
+            :drive-force-n 600.0 :crr 0.015
+            :cog-height-m 0.30 :payload-cog-height-m 1.10 :support-half-length-m 0.60
+            :max-time-s 1200.0}
+   :sweep {:param :brake-decel-mps2 :values [0.5 1.0 2.0 3.0 4.0]}
+   :quantity :min-tipover-margin
+   :limit {:min 0.5 :basis "estimate: half the restoring moment in reserve for tall doors standing on an A-frame when the AMR brakes"}
+   :boundary {:lo 0.3 :hi 6.0}}]}
